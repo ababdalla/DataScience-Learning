@@ -1,0 +1,95 @@
+
+# Propósito
+Necesito un diagnóstico claro, objetivo y accionable del estado actual del proyecto **“Alerta de datos”** en el área de Legaltech, enfocado en: avances reales, bloqueos técnicos y organizacionales, dependencias, viabilidad de un MVP (v1) inmediato y plan de transición a v2.
+
+# Contexto del proyecto
+- Objetivo: Implementar alertas para gestiones de **cambio de límite** y **cambio de cupo (fecha de corte)** de tarjeta de crédito.
+- Fuentes y canales:
+  - **Oracle** (sombrilla principal): provee datos del **usuario creador**, pero **no** incluye **número de tarjeta**, **gestión alfanumérica**, **límite solicitado** ni **fechas consistentes** para trazabilidad.
+  - **VISION / NT-servicios**: fuente conocida; complementa estados/flujo de gestión.
+- Estado visual: Existe un diagrama de flujo donde las **pendientes** están en **color rojo** (elementos faltantes/depósitos de datos).
+
+# Avances logrados (confirmados)
+- Alcance funcional y criterios de activación definidos.
+- Integración inicial con la base existente y pruebas preliminares.
+- Conexión validada con Oracle; mapeo de campos disponibles.
+- Se generan **alertas** (primeras reglas), operables con lo que sí devuelve Oracle.
+
+# Bloqueos y causas
+- **Datos faltantes en Oracle**: no hay número de tarjeta, gestión alfanumérica, límite solicitado ni fechas consistentes -> impide trazabilidad completa y alta precisión.
+- **Dependencias técnicas**:
+  - **Equipo de Tecnología**: se requiere su apoyo para extracción/provisión de datos adicionales (infraestructura, accesos, jobs).
+  - **Equipo de Rolando**: tiene acceso pero **no capacidad inmediata**; **historia de usuario** se presentará el **31 de diciembre** y podría entrar a **backlog en enero 2026**.
+- Consecuencia: Algunas dependencias se **extienden más allá de 2025**, fuera del control del equipo de datos (no está “de nuestro lado”, sino del lado de **infraestructura**).
+
+# Mensajes clave (alineados con liderazgo)
+- **Ya existen alertas**: si no las quieren aceptar, es válido, pero **tenemos alertas funcionales (v1/MVP)** que pueden usarse hoy.
+- Bajo la **sombrilla de Oracle** ya tenemos lo más importante; **aún falta** cierta información para v2.
+- Esta v1 **no puede terminarse “completa”** tan pronto por dependencias externas.
+- Propuesta: **entregar un MVP ahora** y **agregar el resto** como ampliaciones durante **enero** (v2).
+
+# Evidencia visual
+- Diagrama “Tarjeta de Crédito – Tracking de gestiones (Cambio de límite y Cambio de Cupo)”.
+- Elementos en **rojo** = información pendiente/faltante para trazabilidad integral.
+
+# Lo que necesito del analista/IA
+1. **Diagnóstico estructurado**:
+   - Estado actual (qué sí funciona / qué no).
+   - Impacto de los datos faltantes sobre la precisión, cobertura y SLA de alertas.
+   - Riesgos si se retrasa la provisión de datos (operativos, regulatorios, reputacionales).
+
+2. **Mapa de dependencias y líneas de responsabilidad**:
+   - Qué depende de **Tecnología** (infraestructura, ETL/Jobs, seguridad/accesos).
+   - Qué depende del **equipo de Rolando** (historia de usuario, capacidad, backlog).
+   - Qué está bajo control del equipo de **Legaltech/Analítica**.
+
+3. **Viabilidad del MVP (v1)**:
+   - Qué funcionalidades puede incluir hoy (reglas, cobertura, canales de notificación).
+   - Limitaciones explícitas y cómo comunicarlas (disclaimer funcional).
+   - Métricas mínimas para operar el MVP (precision/recall estimados, latencia, tasa de falsos positivos).
+   - Requisitos de aceptación (DoD/Go-Live checklist).
+
+4. **Plan de transición a v2 (enero)**:
+   - Qué datos/atributos se incorporarán (número de tarjeta, gestión alfanumérica, límite, fechas consistentes).
+   - Cambios en reglas/alertas y reporting.
+   - Dependencias y fechas tentativas (31 de diciembre presentación + backlog enero 2026).
+   - Riesgos y mitigaciones (plan B si la extracción se retrasa).
+
+5. **Acciones recomendadas**:
+   - Lista de acciones concretas por stakeholder (Tecnología, Rolando, Legaltech/Analítica, Negocio/Compliance).
+   - Secuencia y priorización (RICE/WSJF opcional).
+   - Mensajes ejecutivos para solicitar **apoyo/decisiones** (aprobación del MVP, compromiso de datos, ventanas de mantenimiento).
+
+# Restricciones y tono
+- Tono **profesional, neutro y firme** (contundente sin agresividad).
+- Evitar ambigüedades: siempre **explicitar** qué está “listo”, qué “pendiente” y por qué.
+- Reforzar que lo pendiente **no es del lado del equipo de datos**, sino **infraestructura**.
+- Proveer **viñetas claras** y síntesis ejecutiva al final.
+
+# Formato de salida esperado
+- Secciones:
+  1) Resumen ejecutivo (1 página, bullets).
+  2) Diagnóstico detallado (tabla de “Funciona / Falta / Impacto / Responsable”).
+  3) Propuesta de **MVP (v1)** – alcance, limitaciones, métricas, checklist de go-live.
+  4) Roadmap de **v2 (enero)** – entregables, dependencias, riesgos y mitigaciones.
+  5) Acciones por stakeholder y próximos pasos (due dates tentativos).
+- Incluir un bloque “Mensajes clave” para presentar a dirección.
+- Si es posible, generar una **slide** (texto) que resuma qué está en **rojo** (pendiente) del diagrama.
+
+# Variables para personalizar
+- {fecha_presentacion} = "31 de diciembre de 2025"
+- {posible_backlog} = "enero de 2026"
+- {owner_tecnologia} = "Equipo de Tecnología"
+- {owner_producto} = "Legaltech – Metodologías y Analítica de Cumplimiento"
+- {stakeholder_rolando} = "Equipo de Rolando"
+- {canales_alerta} = "correo corporativo, panel en BI, notificación en app interna"
+- {kpis_mvp} = "precision, recall, cobertura de gestiones, latencia de detección, tasa de falsos positivos"
+- {riesgos} = "demora de extracción, inconsistencias de timestamp, mapeo de IDs, compliance operativo"
+
+# Entregables finales
+- Un documento (o respuesta) con:
+  - Diagnóstico en bullets y tabla.
+  - Argumentario para aceptación del **MVP** hoy.
+  - Roadmap y plan operativo para **v2** en enero.
+  - Solicitudes de apoyo concretas (quién, qué, cuándo).
+``
