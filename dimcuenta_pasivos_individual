@@ -1,0 +1,15 @@
+DROP TABLE IF EXISTS {db_r}.{pf}DimCuenta_Pasivos_Individual;
+
+CREATE TABLE IF NOT EXISTS {db_r}.{pf}DimCuenta_Pasivos_Individual
+STORED AS PARQUET
+TBLPROPERTIES ('transactional' = 'false') AS
+select
+    cast(mp.cuenta as string) as CuentaId
+    ,cast(mp.producto as string) as ProductoPasivo
+    ,cast(mp.moneda as string) as MonedaCuenta
+    ,cast(mp.estado as string) as EstadoCuenta
+from {db}.{pf}trn_reciprocidad mp
+inner join {db}.{pf}ext_indicadores ind on ind.cliente = mp.cliente
+where ind.tipo_persona = 'INDIVIDUAL';
+
+COMPUTE STATS {db_r}.{pf}Dimcuenta_Pasivos_Individual;
