@@ -1,0 +1,198 @@
+Rol: Actúa como Arquitecto/a Senior de Software con especialidad en Python, FastAPI, generación de reportes PDF, orquestación asíncrona (Celery/RQ), seguridad y cumplimiento LA/FT en banca, con experiencia en Cloudera/Hive/Impala y en modelos dimensionales (Kimball/Power BI). Tu salida debe ser un plan de arquitectura + blueprint técnico detallado + tareas accionables + ejemplos de código y estructuras de carpetas.
+
+Contexto del negocio:
+- Organización: Banco en Guatemala (cumplimiento LA/FT, fraude interno/externo, SARLAFT).
+- Objetivo: Generar bajo demanda un "Perfil de Cliente — Reporte LA/FT" en PDF con:
+  1) Identificación del cliente (por DPI).
+  2) Información KYC/Demográfica (PEP/CPE, ingresos, actividad, etc.).
+  3) Sección de productos/cuentas pasivas (ahorro/monetaria) y préstamos.
+  4) Gráfica de líneas "Créditos vs Débitos" mensuales en el rango de fechas solicitado.
+  5) Indicadores simples (p. ej. % efectivo, # productos, variación mensual).
+  6) Registro de motivo de consulta y auditoría (quién/qué/cuándo/por qué).
+  7) Envío del PDF por correo al solicitante.
+
+Dolor actual:
+- Power BI es ideal para prototipos interactivos, pero resulta limitado para invocaciones parametrizadas ad-hoc con grandes rangos de fechas y para la automatización de PDFs paginados con layout rígido.
+- Se necesita una solución Python "backend-first" que consuma el mismo modelo lógico y exponga un servicio robusto auditable.
+
+Infraestructura y datos disponibles (Data Lake / Cloudera / Hive/Impala):
+- Consultas/tables históricas ya construidas (Parquet):
+  • 300_cl_ind.sql → DimCliente_Individual (KYC) a nivel ClienteId.
+  • 306_pas_ind_transc.sql → Transacciones pasivas detalle (hecho).
+  • 308_act_prest_indiv.sql → Préstamos individuales (snapshot/atributos).
+- Modelo dimensional implementado (Power BI) y replicable en datos:
+  • DimCliente (ClienteId, KYC, PEP/CPE, ingresos, etc.).
+  • DimCuenta (CuentaId, ProductoPasivo, MonedaCuenta, EstadoCuenta) (ya depurada y única por cuenta).
+  • BridgeClienteCuenta (ClienteId, CuentaId, RolCliente) para M:N clientes-cuentas.
+  • FactTransaccionesPasivas (detalle; estado OPERADA).
+  • FactTransPasivas_Mensual (agregada por Cliente–Cuenta–AñoMes–Canal–Moneda).
+  • DimPrestamo (atributos) + FactPrestamo_Snapshot (saldo_cap, saldo_int, pagos, ingestion_date).
+  • Calendario corporativo (AñoMesInt/Fecha).
+- Estandarización aplicada:
+  • Canonización de CuentaKey (solo dígitos, padding a longitud estándar, sin espacios).
+  • Eliminación de duplicados en DimCuenta (regla de prioridad por estado/ingesta).
+  • Puente M:N activo (Cliente–Cuenta) con roles (Titular/Firmante).
+- Requerimiento de entrada para el nuevo flujo:
+  • DPI del cliente investigado.
+  • Rango de fechas (fecha_inicio, fecha_fin) para la transaccionalidad.
+  • Motivo de la consulta (string obligatorio).
+  • Correo destino para enviar el PDF.
+- Restricciones y cumplimiento:
+  • PII sensible (DPI, datos KYC). Requiere autenticación/autorización, auditoría, cifrado en tránsito/descanso, retención limitada, y bitácora de acceso justificado.
+
+Lo que quiero que diseñes y entregues:
+1) Arquitectura objetivo (diagrama textual + justificación):
+   - Front de captura (ligero): Streamlit o micro-UI con FastAPI (form DPI/fechas/motivo/email).
+   - Backend API: FastAPI con endpoints REST:
+       POST /reportes  → crea job asincrónico con {dpi, fecha_inicio, fecha_fin, motivo, email}
+       GET  /reportes/{job_id} → estado del job (pendiente/en_proceso/listo/error)
+       GET  /reportes/{job_id}/descarga → retorna el PDF (si autorizado)
+   - Worker asíncrono: Celery (Redis/RabbitMQ) o RQ (Redis). Se encarga de:
+       a) Validación y auditoría de la solicitud.
+       b) Extracción de datos desde Hive/Impala (conexión Kerberos/LDAP según sea el caso).
+       c) Cálculo de agregados (Créditos/Débitos mensuales, KPI).
+       d) Render de gráfica (matplotlib/seaborn/plotly estático).
+       e) Render de PDF (Jinja2 + WeasyPrint o ReportLab).
+       f) Persistencia del PDF y metadatos (filesystem/ADLS).
+       g) Envío de correo (Microsoft Graph API o SMTP corporativo).
+   - Storage:
+       • Carpeta compartida (\\fileserver\laft\reportes) o contenedor en ADLS/S3 con cifrado y políticas de retención.
+       • Tabla de auditoría relacional (p. ej. rep_laft_auditoria) con: job_id, user, dpi, fechas, motivo, timestamp, hash_pdf, ruta_pdf, estado, error_msg.
+   - Seguridad:
+       • Autenticación: Azure AD / JWT / Windows Integrated.
+       • Autorización por rol (investigador, auditor, admin).
+       • Rate limiting (para evitar abuso).
+       • Mascaramiento selectivo si aplica (p. ej. mostrar 4 últimos dígitos en versiones no oficiales).
+   - Observabilidad:
+       • Logging estructurado JSON (correlación por job_id).
+       • Métricas (tiempo de consulta, tiempo de render, tamaño de PDF).
+       • Trazas de errores con stack y contexto de parámetros.
+
+2) Especificación de datos y consultas:
+   - Cómo resolver DPI → ClienteId usando DimCliente_Individual (o índice por identificación).
+   - Cómo resolver ClienteId → Cuentas (BridgeClienteCuenta) aplicando canonización de CuentaKey idéntica en todas las tablas.
+   - Cómo filtrar FactTransaccionesPasivas por:
+       • las cuentas del cliente,
+       • estado OPERADA,
+       • rango [fecha_inicio, fecha_fin].
+   - Cómo agregar a nivel AñoMesInt para construir la gráfica "Créditos vs Débitos".
+   - Qué columnas mínimas deben retornar las queries (esquema de DF) y cómo mapear a la plantilla.
+   - Manejo de casos límites:
+       • DPI no encontrado,
+       • Cliente sin cuentas,
+       • Sin transacciones en el rango,
+       • Múltiples clientes con DPI homónimo (validar unicidad),
+       • Errores de credenciales/red.
+
+3) Plantilla PDF:
+   - Layout “Perfil de Cliente — Reporte LAFT” (encabezado con logo, fecha generación, DPI, ClienteId).
+   - Secciones:
+       A) Identificación del cliente (Nombre, DPI, NIT, ClienteId).
+       B) KYC clave (PEP/CPE, ingresos_reportados, actividad_economica, RIC, fecha_inicio_relacion, banderas de riesgo).
+       C) Productos/Cuentas (tabla resumida por cuenta, estado, moneda, producto).
+       D) Préstamos (snapshot: saldo_cap, saldo_int, estado; opcional).
+       E) Gráfica de líneas Créditos vs Débitos por mes (en el rango).
+       F) Observaciones y motivo de solicitud (texto libre).
+       G) Pie de página con disclaimers de cumplimiento y hash SHA‑256 del PDF.
+   - Tecnología:
+       • HTML/CSS (Jinja2) + WeasyPrint (o ReportLab si prefieres 100% Python sin HTML).
+       • Incrustar imagen de la gráfica como data URI o archivo temporal seguro.
+   - Estilos: hoja de estilo corporativa (azules, tipografía segura: Roboto/Noto Sans).
+
+4) Envío de correo:
+   - Integración con Microsoft 365 vía Graph API (preferible a SMTP).
+   - Asunto: "Perfil de Cliente LA/FT — DPI {{dpi}} — {{fecha_inicio}} a {{fecha_fin}}"
+   - Cuerpo breve, adjunto PDF, copia a buzón de auditoría si aplica.
+   - Manejo de errores: reintento exponencial + notificación.
+
+5) Seguridad y cumplimiento:
+   - HTTPS obligatorio (certificado corporativo).
+   - Variables de entorno (no secretos en código).
+   - Cifrado en reposo para PDFs y logs sensibles.
+   - Retención: PDFs por {{N_dias}}; auditoría por {{N_meses}}; borrado seguro.
+   - Registro de motivo obligatorio; no generar reporte sin motivo.
+   - Controles de acceso por rol y bitácora de cada descarga.
+
+6) Despliegue:
+   - Opción On‑Prem: VM Windows/Linux con:
+       • Servicio de FastAPI (uvicorn/gunicorn + reverse proxy IIS/NGINX).
+       • Redis (para cola) y servicio del worker (Celery/RQ).
+       • Tareas programadas (limpieza de archivos, compactación de logs).
+   - Opción Azure:
+       • App Service (API FastAPI), Azure Cache for Redis, Container Apps/Functions para worker, Storage Account (ADLS) para PDFs.
+   - Pipeline CI/CD (GitHub Actions/Azure DevOps):
+       • Linting/Tests,
+       • Build de contenedor,
+       • Deploy a dev/stg/prod,
+       • Variables seguras (Key Vault).
+
+7) Entregables técnicos:
+   - Estructura de carpetas del repo:
+       /app
+         /api (routers, pydantic schemas)
+         /services (pdf_service, mail_service, chart_service, audit_service)
+         /datasource (impala_client, queries parametrizadas)
+         /workers (tasks Celery/RQ)
+         /templates (jinja2 html + css)
+         /static (logos, íconos)
+         /config (settings.py; pydantic BaseSettings)
+       /infra (dockerfile, docker-compose, IaC opcional)
+       /tests (unitarios, integración)
+       README.md (paso a paso)
+   - Ejemplos de código:
+       • Modelos Pydantic de entrada/salida.
+       • Endpoints FastAPI (POST/GET).
+       • Conexión a Impala/Hive (kerberos/ldap) y consultas parametrizadas (sin concatenación de strings).
+       • Generación de la gráfica (matplotlib) y composición del PDF (WeasyPrint o ReportLab).
+       • Envío de correo (Graph API con scopes mínimos).
+       • Auditoría (insert en rep_laft_auditoria).
+   - Políticas de logging y error handling (middleware de FastAPI con correlation-id).
+   - Scripts de mantenimiento (rotación y limpieza de PDFs y logs).
+
+8) Plan de implementación (iterativo 2–3 semanas):
+   Sprint 1 (POC):
+     - API POST /reportes (valida ingreso), worker inline (sin cola aún).
+     - Consulta KYC y transacciones por DPI/fechas; agregado mensual; gráfica.
+     - Plantilla HTML y PDF básico.
+     - SMTP/Graph para enviar correo.
+   Sprint 2 (Endurecimiento):
+     - Redis + RQ/Celery (job async), GET estado/descarga, auditoría completa.
+     - Seguridad (JWT/AD), logs estructurados, sanitización de parámetros.
+     - Limpieza/retención programada.
+   Sprint 3 (Prod):
+     - Despliegue (on‑prem o Azure), pipeline CI/CD, documentación de soporte, monitoreo.
+     - Pruebas de carga (volumen de meses alto, múltiples cuentas).
+     - Revisión de cumplimiento y aprobación formal.
+
+9) Casos de prueba y criterios de aceptación:
+   - Dado un DPI válido con múltiples cuentas y transacciones de 24 meses: se genera PDF ≤ {{5}} MB en ≤ {{60}} s, con gráfica y tablas correctas; correo llega en ≤ {{90}} s; auditoría registra motivo y hash.
+   - DPI no existente: devuelve 404 lógico y no genera PDF; auditoría registra intento.
+   - Rango sin transacciones: PDF con mensaje “Sin movimientos en el periodo” y secciones KYC visibles.
+   - Caída de conexión a datos: job marcado “error”, correo a soporte y auditoría con stack resumido.
+   - Autorización: un usuario sin rol “investigador” recibe 403.
+
+10) Extras opcionales:
+   - Exponer el artefacto como link firmado (firma temporal SAS/one-time token).
+   - Panel interno de auditoría (Streamlit/Gradio) para ver jobs recientes y reintentar fallidos.
+   - Cálculo de outliers mensuales (z-score) y banderas rápidas de comportamiento inusual.
+
+Entradas variables (para personalizar):
+- Longitud estándar de la cuenta (padding): {{len_cuenta}}.
+- Política de retención PDFs: {{N_dias}}; auditoría: {{N_meses}}.
+- Modo de envío de correo: {{smtp|graph}}.
+- Despliegue preferido: {{on-prem|azure}}.
+- Orquestador: {{celery|rq}}.
+- Base de auditoría: {{hive|sqlserver|postgres}}.
+- Ruta de almacenamiento de PDFs: {{ruta_storage}}.
+
+Tu trabajo:
+- Devuélveme el documento final con:
+  • Diagrama textual de la arquitectura,
+  • Diseño de endpoints y esquemas Pydantic,
+  • Pseudocódigo/fragmentos clave (consulta, agregado mensual, gráfica, PDF, correo),
+  • Checklist de seguridad/PII y hardening,
+  • Plan de pruebas y criterios de aceptación,
+  • Roadmap con tareas concretas (issues/tickets),
+  • Recomendaciones de librerías: FastAPI, pydantic, impyla/pyodbc, pandas, matplotlib, Jinja2, WeasyPrint/ReportLab, redis, celery/rq, msal/graph-api, loguru/structlog, tenacity (reintentos).
+- Prioriza claridad, reproducibilidad y cumplimiento. No asumas nada no indicado; si faltan supuestos, enuméralos al inicio.
+``
