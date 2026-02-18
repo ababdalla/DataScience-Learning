@@ -1,0 +1,42 @@
+DROP TABLE IF EXISTS {db_r}.{pf}DimPrestamo_Individual;
+
+CREATE TABLE IF NOT EXISTS {db_r}.{pf}DimPrestamo_Individual
+STORED AS PARQUET
+TBLPROPERTIES('transactional' = 'false') AS
+with prestamo as(
+  select
+    cast(pact.no_credito as string) as PrestamoId
+    ,cast(pact.no_operacion as string) as OperacionId
+    ,cast(pact.tipo_cliente as string) as Tipo_Cliente
+    ,cast(pact.desc_empresa as string) as Nombre_empresa_prestamo
+    ,cast(pact.desc_tipo_operacion as string) as Tipo_Prestamo
+    ,cast(pact.prd_finanzas as string) as Producto_Financiero
+    ,cast(pact.desc_estado_act as string) as Estado_prestamo
+    ,pact.monto_desem as Monto_Desembolso
+    --,pact.saldo_cap
+    --,pact.saldo_int
+    ,cast(pact.fecha_ini as date) as FechaInicioPrestamo
+    ,cast(pact.fecha_fin as date) as FechaFinPrestamo
+    ,pact.plazo as PlazoMeses
+    ,cast(pact.desc_moneda as string) as MonedaPrestamo
+    ,cast(pact.desc_garantia as string) as TipoGarantia
+    ,cast(pact.desc_destino as string) as DestinoCredito
+    ,pact.cod_oficina as OficinaCodigo
+    ,cast(pact.desc_oficina as string) as OficinaDescripcion
+    ,cast(pact.segmento as string) as SegmentoCliente
+    ,cast(pact.subsegmento as string) as SubsegmentoCliente
+    , row_number()over(partition by pact.no_credito,pact.cobis
+                        order by pact.ingestion_year desc,
+                        pact.ingestion_month desc,
+                        pact.ingestion_day desc) as fila
+    ,pact.ingestion_year
+    ,pact.ingestion_month
+    ,pact.ingestion_day
+  from {db}.{pf}ext_act_prestamos pact
+  inner join {db}.{pf}ext_indicadores ind on ind.cliente = pact.cobis
+  where ind.tipo_persona = 'INDIVIDUAL'
+)
+select * FROM prestamo
+where fila = 1;
+
+COMPUTE STATS {db_r}.{pf}DimPrestamo_Individual;
