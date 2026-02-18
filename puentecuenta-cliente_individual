@@ -1,0 +1,19 @@
+DROP TABLE IF EXISTS {db_r}.{pf}Dim_Puente_Cliente_Pasivos_Individual;
+
+CREATE TABLE IF NOT EXISTS {db_r}.{pf}Dim_Puente_Cliente_Pasivos_Individual
+STORED AS PARQUET
+TBLPROPERTIES('transactional' = 'false') AS
+select
+  pd.cuenta
+  , pd.cliente
+  , fir.rol as rolCliente
+from {db}.{pf}ext_rol_cuenta fir
+inner join {db}.{pf}ext_cuentas_puente_firmantes unk
+	on unk.dp_det_producto = fir.cod_det_producto
+inner join {db}.{pf}trn_reciprocidad pd
+  on pd.cliente = fir.cod_cliente
+  and pd.cuenta = unk.dp_cuenta
+inner join {db}.{pf}ext_indicadores ind on ind.cliente = pd.cliente
+where ind.tipo_persona = 'INDIVIDUAL';
+
+COMPUTE STATS {db_r}.{pf}Dim_Puente_Cliente_Pasivos_Individual;
