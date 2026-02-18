@@ -1,0 +1,32 @@
+DROP TABLE IF EXISTS {db_r}.{pf}FactTransaccionesPasivas_Individual;
+
+CREATE TABLE IF NOT EXISTS {db_r}.{pf}FactTransaccionesPasivas_Individual
+STORED AS PARQUET
+TBLPROPERTIES ('transactional' = 'false') AS
+SELECT
+  tpas.CuentaID
+  ,tpas.FechaTransaccion
+  ,tpas.HoraTransaccion
+  ,tpas.TransaccionIdCore
+  ,tpas.SecuenciaCore
+  ,tpas.TipoOperacion
+  ,tpas.EstadoTransaccion
+  ,tpas.TipoTransaccion
+  ,tpas.CausaTransaccion
+  ,tpas.MonedaTransaccion
+  ,tpas.MontoTransaccion
+  ,tpas.SerialOperacion
+  ,tpas.UsuarioOperador
+  ,tpas.TerminalOperador
+  ,tpas.NodoOperador
+  ,tpas.CanalTransaccion
+  ,tpas.OficinaCodigo
+  ,tpas.OficinaDescripcion
+  ,tpas.CuentaDestino
+  ,tpas.ingestion_day
+  ,tpas.ingestion_month
+  ,tpas.ingestion_year
+FROM {db}.{pf}ext_transacciones_pasiv tpas
+inner join {db_r}.{pf}Dimcuenta_Pasivos_Individual dpas on dpas.CuentaId = tpas.CuentaID ;
+
+COMPUTE STATS {db_r}.{pf}FactTransaccionesPasivas_Individual;
