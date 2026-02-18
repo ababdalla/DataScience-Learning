@@ -1,0 +1,68 @@
+DROP TABLE IF EXISTS {db_r}.{pf}FactTransPasivas_mensual_Individual;
+CREATE TABLE IF NOT EXISTS {db_r}.{pf}FactTransPasivas_mensual_Individual
+STORED AS PARQUET
+TBLPROPERTIES('transactional' = 'false') AS
+with base as(
+  select
+    tpas.cuentaid
+    ,from_timestamp(tpas.fechatransaccion,'yyyyMM') as anomes
+    ,upper(coalesce(tpas.monedatransaccion,'DESCONOCIDA')) AS monedacodigotx
+    ,upper(coalesce(tpas.canaltransaccion,'DESCONOCIDO')) AS canaltransaccion
+    ,upper(coalesce(tpas.tipooperacion,'')) as tipooperacion
+    ,cast(tpas.montotransaccion as DECIMAL(18,2)) AS monto
+  from {db}.{pf}ext_transacciones_pasiv tpas
+  inner join {db_r}.{pf}Dimcuenta_Pasivos_Individual dpas on dpas.CuentaId = tpas.CuentaID
+  where tpas.estadotransaccion = 'OPERADA'
+),
+clasificada as(
+  select
+    cuentaid
+    ,anomes
+    ,monedacodigotx
+    ,canaltransaccion
+    ,monto
+    ,case
+      when tipooperacion = 'CREDITO' then 1 else 0
+    end as es_credito
+    ,case
+      when tipooperacion = 'DEBITO' then 1 else 0
+    end as es_debito
+  from base
+)
+select
+  cuentaid as CuentaId
+  ,cast(anomes as int) as anomes
+  ,monedacodigotx as MonedaCodigoTx
+  ,canaltransaccion as canaltransaccion
+  ,sum(
+    case
+      when es_credito = 1 then monto
+      else 0
+      end
+  ) as MontoCreditos
+  ,sum(
+    case
+      when es_debito = 1 then monto
+      else 0
+      end
+  ) as MontoDebitos
+  ,sum(
+    case
+      when es_credito = 1 then 1
+      else 0
+      end
+  ) as TxCreditos
+  ,sum(
+    case
+      when es_debito = 1 then 1
+      else 0
+      end
+  ) as TxDebitos
+from clasificada
+GROUP BY
+  cuentaid
+  ,anomes
+  ,monedacodigotx
+  ,canaltransaccion;
+
+COMPUTE STATS {db_r}.{pf}FactTransPasivas_mensual_Individual;
