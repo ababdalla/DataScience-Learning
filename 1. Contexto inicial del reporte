@@ -1,0 +1,170 @@
+Rol que quiero que asumas
+Actúa como un experto en modelado de datos para Power BI, con experiencia en banca, prevención de fraude y SARLAFT, acostumbrado a trabajar con grandes volúmenes de datos transaccionales.
+
+1. Objetivo del proyecto
+Quiero diseñar un tablero de “Perfil de Cliente” en Power BI que concentre casi toda la información relevante de un cliente bancario en un solo lugar, para apoyar al equipo de investigación de casos de fraude (interno y externo) y permitirles investigar más rápido.
+Necesito que me ayudes a definir el modelo de datos y el esquema de tablas que debo cargar a Power BI, así como recomendaciones para que el tablero sea performante y escalable.
+
+2. Contexto
+
+Estoy a cargo del proyecto desde la concepción hasta el “shipping”.
+Voy a trabajar con prototipos iterativos, empezando en Power BI por su flexibilidad.
+A futuro existirán dos tableros separados:
+
+uno para personas individuales
+otro para personas jurídicas
+
+
+En este prototipo solo me concentraré en clientes individuales, porque es donde más datos tengo. La idea es que, si el modelo funciona para individuales, luego se pueda adaptar de forma similar a jurídicos.
+
+
+3. Niveles de información que debe mostrar el perfil
+Quiero que el “perfil de cliente” muestre tres niveles de información principales:
+3.1. Información demográfica / general del cliente (nivel cliente)
+Ejemplos de campos que quiero ver:
+
+Código de cliente
+Definición de cliente / tipo de cliente
+Nombre completo
+Número de identificación
+NIT
+Actividad económica
+Ingresos mensuales declarados (en quetzales y en dólares)
+Otros datos KYC relevantes (estado civil, profesión, PEP/CPE, etc., si están disponibles)
+
+Esta información la obtengo de la consulta 300_cl_ind.sql, que genera una tabla de aproximadamente 2,729,349 registros a nivel de cliente individual.
+
+3.2. Información de productos/cuentas del cliente (nivel producto)
+Quiero ver, en secciones diferenciadas, los productos que el cliente tiene con el banco:
+
+
+Pasivos (cuentas de ahorro y monetarias)
+
+Número de cuenta
+Fecha de apertura
+Tipo de cuenta
+Moneda, estado, etc.
+
+
+
+Activos (préstamos y tarjetas de crédito)
+
+Para préstamos:
+
+Número de crédito / número de operación
+Monto otorgado
+Plazo del crédito
+Saldo capital, intereses, estado, etc.
+
+
+Para tarjetas de crédito (aún no tengo query), pero la idea es:
+
+Número de tarjeta
+Tipo de tarjeta
+Número de cuenta asociada
+Saldo otorgado / límite de crédito
+
+
+
+
+
+Las fuentes actuales son:
+
+
+306_pas_ind_transc.sql: genera una tabla con ~28,873,475 registros donde se mezclan:
+
+datos de las cuentas pasivas del cliente (ahorro/monetarias)
+información transaccional de esas mismas cuentas
+
+Lo hice así para evitar conectar demasiadas tablas en Power BI, pero tengo dudas porque esta estrategia duplica información de cuentas y hace la tabla muy grande.
+
+
+308_act_prest_indiv.sql: genera una tabla con detalles de préstamos individuales (no trae transaccionalidad, solo atributos del préstamo).
+
+
+Tarjetas de crédito: aún no tengo la consulta, pero quiero dejar el modelo listo para incorporarla después.
+
+
+
+3.3. Información de transacciones (nivel transacción)
+Quiero un componente visual donde, con ayuda de filtros, pueda ver la actividad transaccional del cliente:
+
+Filtro para separar cuentas pasivas de productos activos.
+Un gráfico de líneas (similar a la imagen que adjuntaré) que muestre, por rango de fechas seleccionado:
+
+Para cuentas pasivas:
+
+Créditos y débitos por mes a las cuentas de ahorro/monetarias
+Posibilidad de ver montos consolidados mensuales de créditos y débitos
+
+
+Para productos activos (especialmente tarjetas de crédito):
+
+Créditos y gastos (consumos) mensuales del cliente
+
+
+
+
+
+Más adelante agregaré una imagen de referencia que muestra el diseño deseado del gráfico.
+
+4. Fuentes de datos disponibles
+Por ahora, puedes asumir que tengo estas consultas SQL que ya generan tablas en el data lake / base de reporting:
+
+300_cl_ind.sql → Tabla a nivel de cliente individual con datos KYC y demográficos.
+306_pas_ind_transc.sql → Tabla a nivel de transacción de cuentas pasivas, que incluye también datos de la cuenta.
+308_act_prest_indiv.sql → Tabla a nivel de préstamo individual, sin transaccionalidad (solo atributos del préstamo).
+(Pendiente) Query para tarjetas de crédito.
+
+No necesito que escribas SQL, sino que partas de la existencia de estas tablas y me digas cómo debería modelarlas en Power BI.
+
+5. Lo que necesito que generes
+Con base en todo lo anterior, responde a estas preguntas de forma estructurada:
+5.1. Esquema de tablas para Power BI
+Diseña un modelo de datos recomendado para Power BI que cumpla con los requerimientos anteriores. Especifica:
+
+Cuántas tablas debería tener el modelo y qué rol cumple cada una (dimensión de cliente, dimensión de cuentas, hechos de transacciones, hechos de préstamos, calendario, etc.).
+Granularidad de cada tabla (por ejemplo: una fila por cliente, una por cuenta, una por producto, una por transacción, etc.).
+Relaciones entre tablas (cardinalidad y dirección del filtrado).
+Recomendaciones específicas para:
+
+Manejar el hecho de que 306_pas_ind_transc.sql mezcla datos de cuenta y datos de transacción.
+Si es mejor separar cuentas y transacciones en tablas diferentes para evitar duplicación y mejorar performance.
+Cómo dejar el modelo preparado para agregar tarjetas de crédito más adelante.
+
+
+
+Incluye un diagrama textual del modelo (por ejemplo, usando viñetas o pseudo-diagrama tipo estrella) para que sea fácil de implementar.
+
+5.2. Consejos sobre la información obtenida de las queries
+Dame recomendaciones sobre:
+
+Qué campos son claves para el análisis de fraude (interno/externo) y deberían priorizarse en el modelo.
+Qué campos podrían ser derivados / calculados en Power BI (ej. ingresos en USD a partir de GTQ y tipo de cambio, indicadores de mora, concentración de productos, etc.).
+Posibles banderas o métricas que valga la pena exponer en el perfil de cliente (por ejemplo, número de productos, evolución del volumen transaccionado, señales de comportamiento inusual, etc.).
+
+
+5.3. Cómo lograr este tablero sin “romper” Power BI
+Dame buenas prácticas de performance específicas para este caso, incluyendo:
+
+Estrategias para manejar tablas de decenas de millones de registros (como la de transacciones pasivas).
+Recomendaciones de:
+
+Agregaciones o resúmenes por mes/año
+Uso de tablas de historial vs. tablas de detalle
+Uso de columnas calculadas vs. medidas DAX
+Segmentación por cliente (ya que el análisis es por cliente individual)
+
+
+Sugerencias para que el modelo sea escalable cuando incorporemos más productos y nuevas fuentes (como tarjetas de crédito o clientes jurídicos).
+
+
+6. Formato de la respuesta
+Por favor, responde en español y estructura tu respuesta en secciones claras:
+
+Resumen del modelo propuesto
+Detalle de tablas y relaciones
+Recomendaciones sobre campos e indicadores clave
+Buenas prácticas de performance en Power BI para este caso
+
+Si lo consideras útil, puedes incluir ejemplos de medidas DAX o pseudocódigo de relaciones, pero lo principal es el diseño del modelo de datos.En el archivo: objetivo_proyecto.pdf se muestra una imagen de que es lo que se espera obtener se agregara en el siguiente prompt por motivos de espacio
