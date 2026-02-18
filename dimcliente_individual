@@ -1,0 +1,99 @@
+
+DROP TABLE IF EXISTS {db_r}.{pf}DimCliente_Individual;
+
+CREATE TABLE IF NOT EXISTS {db_r}.{pf}DimCliente_Individual
+STORED AS PARQUET
+TBLPROPERTIES ('transactional'='false') AS
+SELECT
+    CAST(a.en_ente AS STRING) AS ClienteId,
+    CAST(a.nombre_completo AS STRING) AS nombre_completo,
+    CAST(a.fecha_nac AS DATE) AS fecha_nacimiento,
+    CAST(a.nacionalidad_1 AS STRING) AS nacionalidad_1,
+    CAST(a.nacionalidad_2 AS STRING) AS nacionalidad_2,
+    CAST(a.profesion AS STRING) AS profesion,
+    CAST(a.estado_civil AS STRING) AS estado_civil,
+    CAST(b.direccion_residencia AS STRING) AS direccion_residencia,
+    CAST(b.telefonos AS STRING) AS telefonos,
+    CAST(b.email AS STRING) AS email,
+    CAST(a.tipo_identificacion AS STRING) AS tipo_identificacion,
+    CAST(a.identificacion AS STRING) AS identificacion,
+    CAST(a.nit AS STRING) AS nit,
+    CAST(f.detalle_firmantes AS STRING) AS firmantes,
+    --CAST(a.es_pep AS STRING) AS es_pep,
+    CASE
+      when a.es_pep = 'SI' then true
+      when a.es_pep = 'NO' then false
+      else null
+    end as es_cliente_pep,
+    --CAST(a.es_cpe AS STRING) AS es_cpe,
+    CASE
+      when a.es_cpe = 'SI' then true
+      when a.es_cpe = 'NO' then false
+      else null
+    end as es_cliente_cpe,
+    --CAST(a.relacion_dependencia AS STRING) AS relacion_dependencia,
+    CASE
+      when a.relacion_dependencia = 'SI' then true
+      when a.relacion_dependencia = 'NO' then false
+      when a.relacion_dependencia = 'NO APLICA' then false
+      else null
+    end as es_relacion_dependencia,
+    CAST(a.nombre_empleador AS STRING) AS nombre_empleador,
+    CAST(a.actividad_empleador AS STRING) AS actividad_empleador,
+    CAST(a.otras_fuentes_ingresos AS STRING) AS otras_fuentes_ingresos,
+    --CAST(a.tiene_negocio_propio AS STRING) AS tiene_negocio_propio,
+    CASE
+      when a.tiene_negocio_propio = 'SI' then true
+      when a.tiene_negocio_propio = 'NO' then false
+    else null
+    end as tiene_negocio_propio_b,
+    CAST(a.ingreso_estimado AS STRING) AS ingresos_reportados,
+    CAST(a.ingreso_negocio AS STRING) AS monto_negocio,
+    CAST(a.egresos_negocio AS STRING) AS egresos_negocio,
+    from_unixtime(unix_timestamp(a.fecha_inicio_relacion,'dd-MM-yy'),'yyyy-MM-dd') AS fecha_inicio_relacion,
+    from_unixtime(unix_timestamp(a.fecha_actualizacion,'dd-MM-yy'),'yyyy-MM-dd') AS fecha_actualizacion,
+    CAST(a.actividad_economica AS STRING) AS actividad_economica,
+    --CAST(a.ind_vigente AS STRING) AS ind_vigente,
+    CAST(a.estado_cliente_sistema AS STRING) AS estado_cliente_sistema,
+    --CAST(a.es_agente_bam AS STRING) AS es_agente_bam,
+    CASE
+      when a.es_agente_bam = 'SI' then true
+      when a.es_agente_bam = 'NO' then false
+    else null
+    end as es_agente_bam_b,
+    --CAST(a.es_emproblemado AS STRING) AS es_emproblemado,
+    CASE
+      when a.es_emproblemado = 'EMPROBLEMADO' then true
+      WHEN a.es_emproblemado = 'BLOQUEADO' then true
+      when a.es_emproblemado = 'SIN PROBLEMA' then false
+    else null
+    end as es_emproblemado_b,
+    --CAST(a.tiene_mora AS STRING) AS tiene_mora,
+    CAST(a.castigos_reestructuras AS STRING) AS castigos_reestructuras,
+    --CAST(a.embargos_bloqueos AS STRING) AS embargos_bloqueos,
+    CASE
+      when a.embargos_bloqueos = 'SI' then true
+      when a.embargos_bloqueos = 'NO' then false
+    else null
+    end as es_embargos_bloquedos,
+    --CAST(a.colaborador AS STRING) AS colaborador,
+    CASE
+      when a.colaborador = 'SI' then true
+      when a.colaborador = 'NO' then false
+    else null
+    end as es_colaborador,
+    CAST(b.ingre_add AS STRING) AS ingresos_adiccionales,
+    CAST(b.direccion_oficina AS STRING) AS direccion_oficina,
+    CAST(a.banca AS STRING) AS banca,
+    CAST(b.dire_neg AS STRING) AS dire_neg,
+    CAST(b.tel_neg AS STRING) AS tel_neg,
+    CAST(a.ingreso_estimado AS STRING) AS ingreso_estimado,
+    CAST(b.nit_negocio AS STRING) AS nit_negocio,
+    --CAST(a.asesor AS STRING) AS asesor,
+    CAST(a.ric AS STRING) AS ric
+FROM {db}.{pf}tran_ind_a a
+LEFT JOIN {db}.{pf}tran_ind_b b ON a.en_ente = b.en_ente
+LEFT JOIN {db}.{pf}tran_firmantes f ON a.cliente = f.cliente_titular
+WHERE UPPER(TRIM(a.tipo_persona)) = 'INDIVIDUAL';
+
+COMPUTE STATS {db_r}.{pf}DimCliente_Individual;
