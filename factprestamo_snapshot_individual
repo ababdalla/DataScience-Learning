@@ -1,0 +1,32 @@
+DROP TABLE IF EXISTS {db_r}.{pf}FactPrestamo_Snapshot_Individual;
+CREATE TABLE IF NOT EXISTS {db_r}.{pf}FactPrestamo_Snapshot_Individual
+STORED AS PARQUET
+TBLPROPERTIES('transactional' = 'false') AS
+select
+  pact.no_credito as no_credito
+  ,pact.no_operacion as no_operacion
+  ,pact.cobis
+  ,pact.saldo_cap AS SaldoCapital
+  ,pact.saldo_int as SaldoInteres
+  ,pact.pagos_realizados as PagosRealizados
+  ,pact.pagos_faltantes
+  ,pact.desc_estado_act as EstadoPrestamo
+  ,pact.desc_moneda as MonedaPrestamo
+  ,pact.cod_oficina
+  ,pact.segmento
+  ,pact.subsegmento
+  ,pact.ingestion_year
+  ,pact.ingestion_month
+  ,pact.ingestion_day
+  ,CAST(
+    CONCAT(
+      CAST(pact.ingestion_year  AS STRING), '-',
+      LPAD(CAST(pact.ingestion_month AS STRING), 2, '0'), '-',
+      LPAD(CAST(pact.ingestion_day   AS STRING), 2, '0')
+    ) AS DATE) AS ingestion_date
+
+from {db}.{pf}ext_act_prestamos pact
+inner join {db}.{pf}ext_indicadores ind on ind.cliente = pact.cobis
+where ind.tipo_persona = 'INDIVIDUAL';
+
+compute stats {db_r}.{pf}FactPrestamo_Snapshot_Individual;
