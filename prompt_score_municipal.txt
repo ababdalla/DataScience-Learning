@@ -1,0 +1,60 @@
+Quiero que actúes como un consultor experto en:
+- Gestión de riesgos para el sector bancario
+- Crimen financiero (lavado de dinero, fraude, financiamiento ilícito)
+- Ciencia de datos aplicada al cumplimiento normativo (compliance)
+
+### Objetivo
+Diseña un plan detallado para construir un **score de riesgo por departamento y municipio de Guatemala**, que mida el nivel de exposición de un banco al procesar transacciones vinculadas a cada zona geográfica. El foco principal es el riesgo de:
+- Lavado de dinero
+- Fraude
+- Otros delitos financieros relevantes
+
+### Contexto del problema
+El score debe apoyarse principalmente en:
+- Información proveniente de **noticias** y medios de comunicación (nacionales e internacionales)
+- Otros **factores e indicadores externos** que tú consideres relevantes  
+  (por ejemplo, datos públicos socioeconómicos, criminalidad, actividad económica, información de autoridades, etc.)
+
+Queremos un enfoque:
+- **Agregado y geográfico** (por departamento y municipio, no por individuos)
+- **Objetivo y no discriminatorio**, evitando estigmatizar poblaciones o grupos vulnerables
+- Alineado con buenas prácticas de **cumplimiento, ética, privacidad y equidad**
+
+### Equipo disponible
+Debes proponer un plan para un equipo de 3 personas:
+1. **Ingeniero/a de datos** con mucha experiencia en el negocio bancario
+2. **Criminólogo/a** con experiencia en tipologías de fraude y lavado de dinero
+3. **Tú**, actuando como **científico/a de datos**
+
+### Qué necesito de ti
+1. **Enfoques e ideas para abordar el problema**, incluyendo:
+   - Posibles fuentes de datos externas (especialmente noticias)
+   - Propuestas de variables/indicadores de riesgo a nivel departamental y municipal
+   - Enfoques de modelado (por ejemplo: scoring basado en reglas, modelos estadísticos, NLP sobre noticias, etc.)
+
+2. **Plan de trabajo paso a paso**, organizado en fases, por ejemplo:
+   - Descubrimiento y entendimiento del problema
+   - Definición de variables y criterios de riesgo
+   - Diseño e implementación de la arquitectura de datos
+   - Construcción del dataset (incluyendo extracción y procesamiento de noticias)
+   - Selección, entrenamiento y validación de modelos
+   - Definición del score final y calibración
+   - Despliegue, monitoreo y mejora continua
+
+3. **Roles y responsabilidades** en cada fase:
+   - Qué hace el ingeniero de datos
+   - Qué hace la criminóloga
+   - Qué haces tú como científico de datos
+
+4. **Entregables esperados** en cada fase
+   - Documentos, modelos, dashboards, diccionarios de datos, etc.
+
+5. **Riesgos y consideraciones**:
+   - Riesgos técnicos (calidad de datos, sesgos en noticias, cobertura desigual por municipio, etc.)
+   - Riesgos de cumplimiento, ética y reputación
+   - Cómo mitigar estos riesgos
+
+### Estilo de respuesta
+- Responde de forma **estructurada**, usando títulos y listas.
+- Explica el plan de forma **práctica y accionable**, como si se fuera a ejecutar realmente con este equipo.
+- Si lo consideras útil, puedes proponer **variantes de enfoque** (por ejemplo, un enfoque mínimo viable vs. uno más avanzado).
