@@ -1,0 +1,55 @@
+Ayudame a responder este correo:
+
+Hola buenas tardes, gusto saludarlos!
+Abdel, gracias, estuve revisando la información junto a Lou y Mariano, y llegamos a las siguientes conclusiones:
+ 
+Coincido contigo, las limitantes en cuanto a no tener todos los datos de Oracle, no permite construir el monitoreo que se necesita. Aunque esta limitante no se analizó al inicio del proyecto, ahora que la tenemos clara me cuentas si crees viable y según las conversaciones que has tenido, si se pudieran llegar a tener para seguir con la idea de desarrollar el monitoreo, o en definitiva renunciar a este.
+ 
+La propuesta que te hice la semana pasada (generar todos los alertas, archivos que nos enviaste) no nos permite realizar cruce de información ni análisis de data para concluir que se traten de alertas por carecer de datos que son necesarios
+ 
+De momento queda en funcionamiento únicamente alertas VISION y aunque ya va de salida y son pocas las personas que lo utilizan, vimos que las alertas generadas en esta plataforma si son efectivas
+ 
+Muchas gracias y quedo atenta a tus comentarios.
+ 
+Saludos. 
+
+Quisiera lograr lo siguiente:
+1. Quiero asegurar que el proyecto esta cerrado con la tercera conclusion que comento Nancy en su correo, empezar de alguna forma, agradeciendo su apoyo y tiempo durante el desarrollo de esta alerta y ante todo el cierre del alcance con la informacion que ya se obtiene de Vision y Oracle.
+2. Quiero salvar un poco de cara, en la primera conclusion se alude que se hizo una mala planificacion al inicio y que hasta ahora se esta viendo que el tema de Oracle era un problema, en realidad, esto fue algo que se vio desde el inicio, pero se quedo durante la primera reunion que se estaria investigando mientras avanzabamos en las demas lineas como lo es Vision, tengo la minuta de esa primera reunion que me gustaria agregar un peque;o screenshot de la misma para asegurar el punto.
+3. No quiero sonar como que estoy peleando el punto, reconozco y en una reunion con Nancy llegamos al acuerdo que si hubieron errores en la planificacion y algo de ello se debio al hecho de que era nuevo en su momento, y por esa razon no quiero hacer de esto un problema muy grande, tambien la relacion con Nancy es bastante buena.
+
+
+Hola buenas tardes, gusto saludarlos!
+Abdel, gracias, estuve revisando la información junto a Lou y Mariano, y llegamos a las siguientes conclusiones:
+ 
+Coincido contigo, las limitantes en cuanto a no tener todos los datos de Oracle, no permite construir el monitoreo que se necesita. Aunque esta limitante no se analizó al inicio del proyecto, ahora que la tenemos clara me cuentas si crees viable y según las conversaciones que has tenido, si se pudieran llegar a tener para seguir con la idea de desarrollar el monitoreo, o en definitiva renunciar a este.
+ 
+La propuesta que te hice la semana pasada (generar todos los alertas, archivos que nos enviaste) no nos permite realizar cruce de información ni análisis de data para concluir que se traten de alertas por carecer de datos que son necesarios
+ 
+De momento queda en funcionamiento únicamente alertas VISION y aunque ya va de salida y son pocas las personas que lo utilizan, vimos que las alertas generadas en esta plataforma si son efectivas
+ 
+Muchas gracias y quedo atenta a tus comentarios.
+ 
+Saludos.
+
+
+
+Hola estimada Nancy,
+
+Muy buenas tardes.
+Muchas gracias por el seguimiento, por el tiempo dedicado durante todo este proceso y por el análisis realizado junto con Lou y Mariano. Aprecio mucho el apoyo del equipo para poder llevar este proyecto hasta su cierre.
+Con la validación que realizamos juntos y considerando las limitaciones actuales de Oracle, confirmo que el proyecto queda oficialmente cerrado con el alcance logrado, el cual corresponde a:
+Las alertas generadas desde VISION y ORACLE a partir de la data disponible.
+La tipología adicional relacionada con aumentos de límite vinculados a familiares o titulares, incorporada según lo acordado en nuestra reunión del 05/03.
+Agradezco nuevamente su apoyo y colaboración para concluir este esfuerzo con los insumos que hoy se encuentran disponibles.
+Sobre el primer punto que mencionas respecto a la disponibilidad de datos en Oracle, coincido plenamente en que esta limitante impide avanzar hacia un monitoreo más robusto para los datos del solicitante del lado de Oracle.
+
+Solo quisiera aportar —de forma muy respetuosa— que este tema lo habíamos identificado desde la primera reunión del proyecto, y en ese momento se definió que, mientras se investigaba con el equipo de la plataforma, avanzaríamos con la línea de VISION en paralelo.
+Para referencia, adjunto un pequeño recorte de la minuta inicial donde se dejó asentado este punto:
+ 
+ 
+Mi intención al compartirlo no es debatir el tema, sino únicamente mantener claridad documental, especialmente porque esto nos ayudará a planificar de forma más precisa futuros proyectos similares.
+Y como lo conversamos en nuestra reunión previa, reconozco que hubo oportunidades de mejora en la planificación inicial —particularmente porque estaba iniciando en el área en ese momento— y agradezco mucho tu apertura y guía para terminar de resolverlo de la mejor manera.
+De mi lado, quedo totalmente alineado y en disposición para apoyar si en el futuro se llegaran a habilitar nuevos campos en Oracle que permitan retomar o ampliar el monitoreo o si se puede obtener acceso al registro de aumentos de limite que tiene el equipo de Analistas.
+Quedo atento a cualquier otra gestión necesaria y nuevamente gracias por tu tiempo y acompañamiento durante este proyecto.
+Saludos cordiales,
