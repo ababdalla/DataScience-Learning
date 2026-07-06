@@ -5,3 +5,6 @@ Entonces en este repo, estaré guardando todos mis aprendizajes relacionados a e
 Por aquí pondre mis notas diarias en el trabajo, las notas de mi curso de EDX y Datacamp, junto con las notas de cada uno de los libros que lea durante estos momentos, el fin es crear una wiki con conocimiento que estoy adquiriendo, los libros que leeré y también las diferentes estarategias que usa el banco.
 
 Algo que siempre he notado en mis trabajos anteriores, es que usualmente me voy de las empresas sin una fuente fuerte de conocimiento, un lugar a donde recurrir cuando algunos problemas anteriores regresan, eso es algo que no quisiera repetir en esta nueva etapa para el BAM
+
+https://job-boards.greenhouse.io/nimblegravity/jobs/4692556005
+
